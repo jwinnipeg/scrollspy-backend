@@ -1,5 +1,6 @@
 from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 from PIL import Image
+import os
 import torch
 
 # Load the AI image detection model
