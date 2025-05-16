@@ -1,28 +1,21 @@
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 from PIL import Image
 import torch
 
-# ✅ Use the real AI model
-model_id = "microsoft/beit-large-patch16-224"
+# Load the AI image detection model
+extractor = AutoFeatureExtractor.from_pretrained("guyfloki/ai-image-detector")
+model = AutoModelForImageClassification.from_pretrained("guyfloki/ai-image-detector")
 
-processor = AutoImageProcessor.from_pretrained(model_id)
-model = AutoModelForImageClassification.from_pretrained(model_id)
-
-def classify_image(image: Image.Image):
-    # Convert image and prepare input with padding
-    inputs = processor(images=image, return_tensors="pt", padding=True)
-
-    # Run through the model
+def classify_image(image: Image.Image) -> dict:
+    inputs = extractor(images=image, return_tensors="pt")
     with torch.no_grad():
         outputs = model(**inputs)
-        logits = outputs.logits
-        predicted_class_id = logits.argmax().item()
-
-    label = model.config.id2label[predicted_class_id]
-    confidence = torch.nn.functional.softmax(logits, dim=1)[0][predicted_class_id].item()
-
+    logits = outputs.logits
+    probabilities = torch.nn.functional.softmax(logits, dim=1)[0]
+    confidence, predicted_class = torch.max(probabilities, dim=0)
+    label = model.config.id2label[predicted_class.item()]
     return {
-        "result": label,
-        "confidence": round(confidence * 100, 2)
+        "label": label,
+        "confidence": round(confidence.item(), 4)
     }
 
