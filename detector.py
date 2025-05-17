@@ -1,5 +1,5 @@
 import os
-from transformers import AutoImageprocessor, SiglipForImageClassification
+from transformers import AutoImageProcessor, SiglipForImageClassification
 from PIL import Image
 import torch
 
