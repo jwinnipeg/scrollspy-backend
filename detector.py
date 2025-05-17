@@ -1,5 +1,5 @@
 import os
-from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+from transformers import Autoimageprocessor, SiglipForImageClassification
 from PIL import Image
 import torch
 
@@ -8,12 +8,12 @@ hf_token = os.environ.get("HUGGING_FACE_HUB_TOKEN")
 
 # Load the model
 model_name = "Ateeqq/ai-vs-human-image-detector"
-extractor = AutoFeatureExtractor.from_pretrained(model_name, token=hf_token)
-model = AutoModelForImageClassification.from_pretrained(model_name, token=hf_token)
+processor = AutoImageProcessor.from_pretrained(model_name, token=hf_token)
+model = SiglipForImageClassification.from_pretrained(model_name, token=hf_token)
 
-# Image classification function
+# Main image classification function
 def classify_image(image: Image.Image) -> dict:
-    inputs = extractor(images=image, return_tensors="pt")
+    inputs = processor(images=image, return_tensors="pt")
     with torch.no_grad():
         outputs = model(**inputs)
     logits = outputs.logits
